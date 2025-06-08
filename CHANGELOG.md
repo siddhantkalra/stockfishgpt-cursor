@@ -2,20 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-> This changelog is **auto-managed** via Git. It does **not** include changes made to this file itself.
+> This changelog is auto-generated using Git. Changes to this file itself are excluded.
 
 ---
 
-## [Unreleased]
+## [2025-06-07]
 
-- Project directory restored in correct path
-- Initial index.html restored from Cursor
-- GitHub repo linked and pushed
-
----
-
-## [v0.1.0] – 2025-06-08
-
-- Initial commit: interactive board, full rules (promotion, castling, en passant)
-- Clean Lichess-style UI and layout
-- GitHub repo setup complete
+- Test commit to verify changelog automation (`9d0674a`)
+- Added README and auto-managed CHANGELOG (`6efb1c4`)
+- Initial commit in correct path (`bcb2ecd`)

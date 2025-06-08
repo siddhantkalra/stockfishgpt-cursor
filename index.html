@@ -23,216 +23,503 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
+        /* Base theme colors */
         :root {
-            --primary-blue: #2c3e50;
-            --secondary-blue: #34495e;
-            --accent-blue: #3498db;
-            --light-blue: #ecf0f1;
-            --white: #ffffff;
-            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-nav: #0f172a;
+            --text-primary: #f9fafb;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(255, 255, 255, 0.1);
+            
+            /* Accent colors */
+            --accent-gradient: linear-gradient(90deg, #6366f1, #3b82f6);
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-sky: #38bdf8;
+            --accent-purple: #a78bfa;
+            --accent-pink: #ec4899;
+            
+            /* Shadows and effects */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
             --border-radius: 8px;
-            --last-move: rgba(155, 199, 0, 0.41);
-            --check: rgba(255, 0, 0, 0.5);
-            --hover: rgba(32, 33, 36, 0.04);
+            
+            /* Chess-specific colors */
+            --last-move: rgba(99, 102, 241, 0.2);
+            --check: rgba(236, 72, 153, 0.4);
+            --hover: rgba(99, 102, 241, 0.1);
+            --legal-move: rgba(99, 102, 241, 0.15);
+            
+            /* Transitions */
+            --transition: all 0.2s ease;
         }
 
-        * {
+        /* Light theme */
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-nav: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --border-color: rgba(0, 0, 0, 0.1);
+            
+            /* Shadows and effects */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.05);
+            
+            /* Chess-specific colors */
+            --last-move: rgba(99, 102, 241, 0.15);
+            --check: rgba(236, 72, 153, 0.3);
+            --hover: rgba(99, 102, 241, 0.05);
+            --legal-move: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Global styles */
+        body {
+            font-family: 'Inter', 'system-ui', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            letter-spacing: 0.2px;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            min-height: 100vh;
+            position: relative;
         }
 
-        body {
-            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--light-blue);
-            color: var(--primary-blue);
-            line-height: 1.6;
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 0% 0%, var(--accent-indigo) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, var(--accent-blue) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, var(--accent-purple) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, var(--accent-pink) 0%, transparent 50%);
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: -1;
+            animation: gradientShift 15s ease infinite;
         }
 
+        @keyframes gradientShift {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Navigation bar */
         .nav-bar {
-            background: var(--white);
-            padding: 15px 0;
-            box-shadow: var(--shadow);
+            background: var(--bg-nav);
+            padding: 10px 0;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
         }
 
         .nav-content {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            justify-content: space-between;
+            padding: 0 24px;
         }
 
         .nav-logo {
-            font-size: 24px;
-            color: var(--primary-blue);
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #6366f1, #3b82f6, #38bdf8, #a78bfa, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
-        .container {
+        .nav-actions {
             display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            max-width: 1400px;
-            margin: 100px auto 30px;
-            padding: 0 20px;
+            gap: 16px;
         }
 
-        .board-section {
-            flex: 1;
-            min-width: 300px;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .board-container {
-            background: var(--white);
-            padding: 20px;
+        .nav-button {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            position: relative;
-        }
-
-        .reset-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--white);
-            border: 1px solid var(--light-blue);
-            color: var(--primary-blue);
             cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            z-index: 10;
-        }
-
-        .reset-button:hover {
-            background: var(--light-blue);
-            transform: rotate(180deg);
-        }
-
-        .reset-button::after {
-            content: "Reset Game";
-            position: absolute;
-            right: 45px;
-            background: var(--primary-blue);
-            color: var(--white);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.2s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        .reset-button:hover::after {
-            opacity: 1;
-        }
-
-        .game-info {
-            flex: 1;
-            min-width: 300px;
-            max-width: 500px;
-        }
-
-        .info-section {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
+            gap: 4px;
+            position: relative;
             overflow: hidden;
         }
 
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-button:hover {
+            color: var(--text-primary);
+            transform: scale(1.05);
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .nav-button:hover::before {
+            opacity: 1;
+        }
+
+        .nav-button.active {
+            background: var(--accent-gradient);
+            color: var(--text-primary);
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Main container */
+        .container {
+            display: flex;
+            gap: 24px;
+            max-width: 1200px;
+            margin: 80px auto 30px;
+            padding: 0 24px;
+            align-items: flex-start;
+            min-height: calc(100vh - 110px);
+        }
+
+        /* Board section */
+        .board-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 45%;
+            position: relative;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .board-container {
+            flex: 1;
+            background: var(--bg-secondary);
+            padding: 4px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 18px 4px rgba(167, 139, 250, 0.4);
+            position: relative;
+            border: 1px solid var(--border-color);
+            min-width: 112px;
+            max-width: 100%;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .board-container::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: var(--accent-gradient);
+            border-radius: var(--border-radius);
+            z-index: -1;
+            opacity: 0.5;
+            animation: borderGlow 2s ease-in-out infinite;
+            transform: translateZ(-10px);
+        }
+
+        .board-container::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: -10px;
+            bottom: -10px;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius);
+            z-index: -2;
+            opacity: 0.5;
+            filter: blur(10px);
+            transform: translateZ(-20px);
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Evaluation bar */
+        .eval-bar {
+            position: absolute;
+            top: 0;
+            right: -24px;
+            height: 100%;
+            width: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 0 6px rgba(139, 92, 246, 0.2);
+            border: 1px solid var(--border-color);
+            opacity: 0.8;
+        }
+
+        .eval-fill {
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, #3b82f6, #8b5cf6);
+            transition: height 0.3s ease;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            opacity: 0.7;
+        }
+
+        .eval-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-muted);
+            font-size: 0.55rem;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        /* Square selection */
+        .square-selected {
+            box-shadow: inset 0 0 0 2px rgba(139, 92, 246, 0.6) !important;
+        }
+
+        /* Coordinates */
+        .coordinates {
+            position: absolute;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            user-select: none;
+        }
+
+        .coordinates.files {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 2px 0;
+        }
+
+        .coordinates.ranks {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 0 2px;
+        }
+
+        /* Game info */
+        .game-info {
+            flex: 1;
+            min-width: 300px;
+            max-width: 35%;
+        }
+
+        .info-section {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
         .info-header {
-            background: var(--white);
-            padding: 15px 20px;
+            padding: 8px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--light-blue);
             cursor: pointer;
+            transition: var(--transition);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .info-header:hover {
+            background: rgba(99, 102, 241, 0.2);
         }
 
         .info-header h3 {
             margin: 0;
-            font-size: 1em;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .info-header i {
-            color: var(--accent-blue);
-            font-size: 0.9em;
+            gap: 6px;
         }
 
         .info-content {
-            padding: 20px;
-            max-height: 200px;
+            padding: 12px;
+            max-height: 180px;
             overflow-y: auto;
-            font-size: 0.9em;
-            background: var(--white);
+            font-size: 0.85rem;
+            background: var(--bg-secondary);
             display: none;
+            color: var(--text-secondary);
         }
 
         .info-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Move history table */
         .move-history {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 10px;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
-        .move-number {
-            color: var(--secondary-blue);
-            font-weight: 500;
+        .move-history tr {
+            border-bottom: 1px solid var(--border-color);
         }
 
-        #status {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: var(--white);
+        .move-history tr:last-child {
+            border-bottom: none;
+        }
+
+        .move-history td {
+            padding: 4px 8px;
+            text-align: left;
+        }
+
+        .move-history .move-number {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            width: 24px;
+        }
+
+        .move-history .move-white,
+        .move-history .move-black {
+            padding-left: 12px;
+        }
+
+        /* Buttons */
+        .control-button {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            font-weight: 500;
-            color: var(--primary-blue);
-        }
-
-        .button {
-            background: var(--white);
-            color: var(--primary-blue);
-            border: 1px solid var(--light-blue);
-            padding: 6px 12px;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s;
+            font-size: 0.8rem;
+            transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .button:hover {
-            background: var(--light-blue);
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .control-button:hover {
+            color: var(--text-primary);
+            transform: scale(1.02);
+            border-color: transparent;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .control-button:hover::before {
+            opacity: 1;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 70px;
+            }
+
+            .board-section, .game-info {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .board-container {
+                min-width: unset;
+                width: 100%;
+            }
+
+            .nav-content {
+                padding: 0 16px;
+            }
+
+            .nav-actions {
+                display: none;
+            }
+        }
+
+        /* Background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 1px 1px, var(--border-color) 1px, transparent 0);
+            background-size: 24px 24px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .promotion-modal {
@@ -241,40 +528,43 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: var(--white);
-            padding: 20px;
+            background: var(--bg-secondary);
+            padding: 24px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow-lg);
             z-index: 1000;
+            border: 1px solid var(--border-color);
         }
 
         .promotion-modal h3 {
-            color: var(--primary-blue);
-            margin-bottom: 15px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
             text-align: center;
-            font-size: 1em;
+            font-size: 1.1em;
+            font-weight: 500;
         }
 
         .promotion-pieces {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
         }
 
         .promotion-piece {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 4px;
-            padding: 5px;
+            transition: var(--transition);
+            border-radius: 6px;
+            padding: 8px;
             border: 2px solid transparent;
+            background: var(--bg-primary);
         }
 
         .promotion-piece:hover {
             transform: scale(1.1);
             border-color: var(--accent-blue);
-            background: var(--light-blue);
+            background: var(--bg-secondary);
         }
 
         .modal-backdrop {
@@ -284,77 +574,36 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(2px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
             z-index: 999;
         }
 
-        /* Chessboard enhancements */
-        .board-container .board {
-            border-radius: 4px;
-        }
-
-        .board-container .square-55d63 {
-            transition: background-color 0.2s;
-        }
-
-        .board-container .square-55d63:hover {
-            background-color: var(--hover) !important;
-        }
-
-        .board-container .last-move {
-            background-color: var(--last-move) !important;
-        }
-
-        .board-container .check {
-            background-color: var(--check) !important;
-        }
-
-        .board-container .coordinates {
-            position: absolute;
-            font-size: 12px;
-            color: var(--primary-blue);
-            opacity: 0.7;
-        }
-
-        .board-container .coordinates.files {
-            bottom: -20px;
-            left: 0;
-            right: 0;
+        .board-controls {
             display: flex;
-            justify-content: space-around;
-            padding: 0 20px;
+            gap: 6px;
+            margin-top: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        .board-container .coordinates.ranks {
-            top: 0;
-            bottom: 0;
-            left: -20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            padding: 20px 0;
+        #status {
+            text-align: center;
+            margin: 8px 0;
+            padding: 6px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-                margin-top: 80px;
-            }
-
-            .board-section, .game-info {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            .board-container {
-                margin: 0 auto;
-            }
-
-            .nav-content {
-                padding: 0 20px;
-            }
+        .move-notation {
+            text-align: center;
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            min-height: 20px;
         }
     </style>
 </head>
@@ -365,25 +614,63 @@
                 <i class="fas fa-chess-knight"></i>
                 <span>StockfishGPT</span>
             </a>
+            <div class="nav-actions">
+                <button class="nav-button" title="AI Commentary">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>AI Commentary</span>
+                </button>
+                <button class="nav-button" title="Evaluation">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Evaluation</span>
+                </button>
+                <button class="nav-button" title="Upload Game">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload</span>
+                </button>
+                <button class="nav-button" title="Replay Mode">
+                    <i class="fas fa-redo"></i>
+                    <span>Replay</span>
+                </button>
+                <button class="nav-button" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                    <span>Theme</span>
+                </button>
+                <button class="nav-button" title="Settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
         </div>
     </nav>
 
     <div class="container">
         <div class="board-section">
             <div class="board-container">
-                <button class="reset-button" id="resetButton" title="Reset Game">
-                    <i class="fas fa-redo"></i>
-                </button>
-                <div id="status"></div>
                 <div id="board"></div>
-                <div class="coordinates files">
-                    <span>a</span><span>b</span><span>c</span><span>d</span>
-                    <span>e</span><span>f</span><span>g</span><span>h</span>
+                <div id="status"></div>
+                <div class="move-notation" id="moveNotation"></div>
+                <div class="board-controls">
+                    <button class="control-button" id="resetButton" title="Reset Game">
+                        <i class="fas fa-redo"></i>
+                        <span>Reset</span>
+                    </button>
+                    <button class="control-button" id="flipButton" title="Flip Board">
+                        <i class="fas fa-sync"></i>
+                        <span>Flip</span>
+                    </button>
+                    <button class="control-button" id="undoButton" title="Undo Move">
+                        <i class="fas fa-undo"></i>
+                        <span>Undo</span>
+                    </button>
+                    <button class="control-button" id="exportButton" title="Export PGN">
+                        <i class="fas fa-download"></i>
+                        <span>Export</span>
+                    </button>
                 </div>
-                <div class="coordinates ranks">
-                    <span>8</span><span>7</span><span>6</span><span>5</span>
-                    <span>4</span><span>3</span><span>2</span><span>1</span>
-                </div>
+            </div>
+            <div class="eval-bar">
+                <div class="eval-fill"></div>
+                <div class="eval-value"></div>
             </div>
         </div>
         
@@ -439,13 +726,88 @@
         var $fen = $('#fen');
         var $pgn = $('#pgn');
         var $moveHistory = $('#moveHistory');
+        var $moveNotation = $('#moveNotation');
         var $promotionModal = $('#promotionModal');
         var $modalBackdrop = $('#modalBackdrop');
         var $resetButton = $('#resetButton');
+        var $flipButton = $('#flipButton');
+        var $undoButton = $('#undoButton');
+        var $exportButton = $('#exportButton');
+        var $themeToggle = $('#themeToggle');
         var lastMove = null;
+        var boardFlipped = false;
         
-        // Store the pending promotion move
-        var pendingMove = null;
+        // Theme management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = $themeToggle.find('i');
+            if (theme === 'dark') {
+                icon.removeClass('fa-sun').addClass('fa-moon');
+            } else {
+                icon.removeClass('fa-moon').addClass('fa-sun');
+            }
+        }
+
+        // Initialize theme
+        initTheme();
+
+        // Theme toggle handler
+        $themeToggle.on('click', toggleTheme);
+        
+        // Initialize sound effects
+        var moveSound = new Audio('sounds/move.mp3');
+        var captureSound = new Audio('sounds/capture.mp3');
+        var checkSound = new Audio('sounds/check.mp3');
+        
+        // Set default volume
+        moveSound.volume = 0.5;
+        captureSound.volume = 0.5;
+        checkSound.volume = 0.5;
+        
+        // Preload sounds on first user interaction
+        function preloadSounds() {
+            moveSound.load();
+            captureSound.load();
+            checkSound.load();
+            
+            // Play and immediately pause to unlock audio on mobile
+            moveSound.play().then(() => moveSound.pause());
+            captureSound.play().then(() => captureSound.pause());
+            checkSound.play().then(() => checkSound.pause());
+        }
+        
+        // Add click listener to document for first interaction
+        document.addEventListener('click', function initAudio() {
+            preloadSounds();
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+        
+        // Function to play appropriate sound
+        function playMoveSound(move) {
+            if (move.flags.includes('c')) {
+                captureSound.currentTime = 0;
+                captureSound.play().catch(console.error);
+            } else if (game.in_check()) {
+                checkSound.currentTime = 0;
+                checkSound.play().catch(console.error);
+            } else {
+                moveSound.currentTime = 0;
+                moveSound.play().catch(console.error);
+            }
+        }
 
         // Function to toggle info sections
         function toggleSection(sectionId) {
@@ -476,6 +838,19 @@
             if (lastMove) {
                 $('.square-' + lastMove.from).addClass('last-move');
                 $('.square-' + lastMove.to).addClass('last-move');
+            }
+        }
+
+        // Function to highlight legal moves
+        function highlightLegalMoves(source) {
+            // Remove previous highlights
+            $('.square-55d63').removeClass('legal-move');
+            
+            if (source) {
+                var moves = game.moves({ square: source, verbose: true });
+                moves.forEach(function(move) {
+                    $('.square-' + move.to).addClass('legal-move');
+                });
             }
         }
 
@@ -510,6 +885,15 @@
             highlightCheck();
         }
 
+        // Function to update move notation
+        function updateMoveNotation() {
+            if (lastMove) {
+                $moveNotation.text(lastMove.san);
+            } else {
+                $moveNotation.text('');
+            }
+        }
+
         // Function to update game info
         function updateGameInfo() {
             $fen.text(game.fen());
@@ -517,19 +901,23 @@
             
             // Update move history
             var history = game.history({ verbose: true });
-            var html = '';
+            var html = '<table class="move-history">';
             var moveNumber = 1;
             
             for (var i = 0; i < history.length; i += 2) {
-                html += '<div class="move-number">' + moveNumber + '.</div>';
-                html += '<div>' + history[i].san;
+                html += '<tr>';
+                html += '<td class="move-number">' + moveNumber + '.</td>';
+                html += '<td class="move-white">' + history[i].san + '</td>';
                 if (i + 1 < history.length) {
-                    html += ' ' + history[i + 1].san;
+                    html += '<td class="move-black">' + history[i + 1].san + '</td>';
+                } else {
+                    html += '<td class="move-black"></td>';
                 }
-                html += '</div>';
+                html += '</tr>';
                 moveNumber++;
             }
             
+            html += '</table>';
             $moveHistory.html(html);
             $moveHistory.scrollTop($moveHistory[0].scrollHeight);
         }
@@ -560,6 +948,8 @@
                     highlightLastMove();
                     updateStatus();
                     updateGameInfo();
+                    updateMoveNotation();
+                    playMoveSound(move);
                     window.setTimeout(makeRandomMove, 250);
                 }
             }
@@ -577,26 +967,70 @@
             highlightLastMove();
             updateStatus();
             updateGameInfo();
+            updateMoveNotation();
         });
 
-        // Initialize the chessboard
+        // Flip board
+        $flipButton.on('click', function() {
+            boardFlipped = !boardFlipped;
+            board.flip();
+        });
+
+        // Undo move
+        $undoButton.on('click', function() {
+            if (game.history().length > 0) {
+                game.undo(); // Undo black's move
+                if (game.history().length > 0) {
+                    game.undo(); // Undo white's move
+                }
+                board.position(game.fen());
+                lastMove = game.history({ verbose: true }).pop() || null;
+                highlightLastMove();
+                updateStatus();
+                updateGameInfo();
+                updateMoveNotation();
+            }
+        });
+
+        // Export PGN
+        $exportButton.on('click', function() {
+            var pgn = game.pgn();
+            var blob = new Blob([pgn], { type: 'text/plain' });
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'game.pgn';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+
+        // Update the board initialization with Lichess-style animations
+        var selectedSquare = null;
+
         var board = Chessboard('board', {
             draggable: true,
             position: 'start',
-            moveSpeed: 'slow',
-            snapbackSpeed: 500,
-            snapSpeed: 100,
-            trashSpeed: 100,
+            moveSpeed: 200,
+            snapbackSpeed: 200,
+            snapSpeed: 200,
+            trashSpeed: 200,
             dropOffBoard: 'snapback',
             pieceTheme: 'https://lichess1.org/assets/piece/cburnett/{piece}.svg',
+            showNotation: true,
             onDragStart: function(source, piece) {
                 if (game.game_over() || 
                     (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
                     (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
                     return false;
                 }
+                highlightLegalMoves(source);
             },
             onDrop: function(source, target) {
+                // Remove legal move highlights
+                $('.square-55d63').removeClass('legal-move');
+                $('.square-55d63').removeClass('square-selected');
+                selectedSquare = null;
+
                 var piece = game.get(source);
                 if (piece && piece.type === 'p' && 
                     ((piece.color === 'w' && target[1] === '8') || 
@@ -614,10 +1048,13 @@
 
                 lastMove = move;
                 highlightLastMove();
+                updateMoveNotation();
+                playMoveSound(move);
+                
+                // Make black's move after a short delay
                 window.setTimeout(makeRandomMove, 250);
             },
             onSnapEnd: function() {
-                board.position(game.fen());
                 updateStatus();
                 updateGameInfo();
             }
@@ -633,7 +1070,54 @@
             highlightLastMove();
             updateStatus();
             updateGameInfo();
+            updateMoveNotation();
+            playMoveSound(lastMove);
         }
+
+        // Add click-to-move functionality
+        $board.on('click', '.square-55d63', function() {
+            var square = $(this).data('square');
+            
+            if (selectedSquare) {
+                // Second click - try to move
+                var move = game.move({
+                    from: selectedSquare,
+                    to: square
+                });
+                
+                if (move) {
+                    board.position(game.fen());
+                    lastMove = move;
+                    highlightLastMove();
+                    updateMoveNotation();
+                    playMoveSound(move);
+                    window.setTimeout(makeRandomMove, 250);
+                }
+                
+                // Clear selection
+                $('.square-55d63').removeClass('square-selected');
+                $('.square-55d63').removeClass('legal-move');
+                selectedSquare = null;
+            } else {
+                // First click - select piece
+                var piece = game.get(square);
+                if (piece && 
+                    ((game.turn() === 'w' && piece.color === 'w') || 
+                     (game.turn() === 'b' && piece.color === 'b'))) {
+                    selectedSquare = square;
+                    $(this).addClass('square-selected');
+                    highlightLegalMoves(square);
+                }
+            }
+        });
+
+        // Add eval value display
+        function updateEvalBar(value = '+0.0') {
+            $('.eval-value').text(value);
+        }
+
+        // Initialize eval value
+        updateEvalBar();
 
         // Initial updates
         updateStatus();
