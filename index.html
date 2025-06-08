@@ -1,0 +1,646 @@
+<!-- Test commit for changelog -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockfishGPT</title>
+    
+    <!-- Chessboard.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    
+    <!-- jQuery (required by chessboard.js) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Chess.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    
+    <!-- Chessboard.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #2c3e50;
+            --secondary-blue: #34495e;
+            --accent-blue: #3498db;
+            --light-blue: #ecf0f1;
+            --white: #ffffff;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+            --last-move: rgba(155, 199, 0, 0.41);
+            --check: rgba(255, 0, 0, 0.5);
+            --hover: rgba(32, 33, 36, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+            line-height: 1.6;
+        }
+
+        .nav-bar {
+            background: var(--white);
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            font-size: 24px;
+            color: var(--primary-blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 100px auto 30px;
+            padding: 0 20px;
+        }
+
+        .board-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .board-container {
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .reset-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid var(--light-blue);
+            color: var(--primary-blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .reset-button:hover {
+            background: var(--light-blue);
+            transform: rotate(180deg);
+        }
+
+        .reset-button::after {
+            content: "Reset Game";
+            position: absolute;
+            right: 45px;
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .reset-button:hover::after {
+            opacity: 1;
+        }
+
+        .game-info {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .info-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .info-header {
+            background: var(--white);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--light-blue);
+            cursor: pointer;
+        }
+
+        .info-header h3 {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-header i {
+            color: var(--accent-blue);
+            font-size: 0.9em;
+        }
+
+        .info-content {
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            background: var(--white);
+            display: none;
+        }
+
+        .info-content.active {
+            display: block;
+        }
+
+        .move-history {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+        }
+
+        .move-number {
+            color: var(--secondary-blue);
+            font-weight: 500;
+        }
+
+        #status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            font-weight: 500;
+            color: var(--primary-blue);
+        }
+
+        .button {
+            background: var(--white);
+            color: var(--primary-blue);
+            border: 1px solid var(--light-blue);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .button:hover {
+            background: var(--light-blue);
+        }
+
+        .promotion-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .promotion-modal h3 {
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        .promotion-pieces {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .promotion-piece {
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            padding: 5px;
+            border: 2px solid transparent;
+        }
+
+        .promotion-piece:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-blue);
+            background: var(--light-blue);
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+        }
+
+        /* Chessboard enhancements */
+        .board-container .board {
+            border-radius: 4px;
+        }
+
+        .board-container .square-55d63 {
+            transition: background-color 0.2s;
+        }
+
+        .board-container .square-55d63:hover {
+            background-color: var(--hover) !important;
+        }
+
+        .board-container .last-move {
+            background-color: var(--last-move) !important;
+        }
+
+        .board-container .check {
+            background-color: var(--check) !important;
+        }
+
+        .board-container .coordinates {
+            position: absolute;
+            font-size: 12px;
+            color: var(--primary-blue);
+            opacity: 0.7;
+        }
+
+        .board-container .coordinates.files {
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+        }
+
+        .board-container .coordinates.ranks {
+            top: 0;
+            bottom: 0;
+            left: -20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                margin-top: 80px;
+            }
+
+            .board-section, .game-info {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .board-container {
+                margin: 0 auto;
+            }
+
+            .nav-content {
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <a href="#" class="nav-logo">
+                <i class="fas fa-chess-knight"></i>
+                <span>StockfishGPT</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="board-section">
+            <div class="board-container">
+                <button class="reset-button" id="resetButton" title="Reset Game">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <div id="status"></div>
+                <div id="board"></div>
+                <div class="coordinates files">
+                    <span>a</span><span>b</span><span>c</span><span>d</span>
+                    <span>e</span><span>f</span><span>g</span><span>h</span>
+                </div>
+                <div class="coordinates ranks">
+                    <span>8</span><span>7</span><span>6</span><span>5</span>
+                    <span>4</span><span>3</span><span>2</span><span>1</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="info-section">
+                <div class="info-header" onclick="toggleSection('moveHistory')">
+                    <h3><i class="fas fa-history"></i> Move History</h3>
+                    <button class="button" onclick="copyToClipboard('moveHistory', event)">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="info-content move-history" id="moveHistory"></div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-header" onclick="toggleSection('fen')">
+                    <h3><i class="fas fa-code"></i> FEN</h3>
+                    <button class="button" onclick="copyToClipboard('fen', event)">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="info-content" id="fen"></div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-header" onclick="toggleSection('pgn')">
+                    <h3><i class="fas fa-file-alt"></i> PGN</h3>
+                    <button class="button" onclick="copyToClipboard('pgn', event)">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="info-content" id="pgn"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="promotion-modal" id="promotionModal">
+        <h3>Choose promotion piece</h3>
+        <div class="promotion-pieces">
+            <img src="https://lichess1.org/assets/piece/cburnett/wQ.svg" class="promotion-piece" data-piece="q" alt="Queen">
+            <img src="https://lichess1.org/assets/piece/cburnett/wR.svg" class="promotion-piece" data-piece="r" alt="Rook">
+            <img src="https://lichess1.org/assets/piece/cburnett/wB.svg" class="promotion-piece" data-piece="b" alt="Bishop">
+            <img src="https://lichess1.org/assets/piece/cburnett/wN.svg" class="promotion-piece" data-piece="n" alt="Knight">
+        </div>
+    </div>
+
+    <script>
+        // Initialize chess game
+        var game = new Chess();
+        var $board = $('#board');
+        var $status = $('#status');
+        var $fen = $('#fen');
+        var $pgn = $('#pgn');
+        var $moveHistory = $('#moveHistory');
+        var $promotionModal = $('#promotionModal');
+        var $modalBackdrop = $('#modalBackdrop');
+        var $resetButton = $('#resetButton');
+        var lastMove = null;
+        
+        // Store the pending promotion move
+        var pendingMove = null;
+
+        // Function to toggle info sections
+        function toggleSection(sectionId) {
+            $('#' + sectionId).toggleClass('active');
+        }
+
+        // Function to copy text to clipboard
+        function copyToClipboard(elementId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            var text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(function() {
+                var button = event.currentTarget;
+                var originalHtml = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(function() {
+                    button.innerHTML = originalHtml;
+                }, 1000);
+            });
+        }
+
+        // Function to highlight the last move
+        function highlightLastMove() {
+            // Remove previous highlights
+            $('.square-55d63').removeClass('last-move');
+            
+            if (lastMove) {
+                $('.square-' + lastMove.from).addClass('last-move');
+                $('.square-' + lastMove.to).addClass('last-move');
+            }
+        }
+
+        // Function to highlight check
+        function highlightCheck() {
+            $('.square-55d63').removeClass('check');
+            if (game.in_check()) {
+                var king = game.turn() === 'w' ? 'e1' : 'e8';
+                $('.square-' + king).addClass('check');
+            }
+        }
+        
+        // Function to update the status display
+        function updateStatus() {
+            var status = '';
+            
+            if (game.in_checkmate()) {
+                status = 'Game over, ' + (game.turn() === 'w' ? 'black' : 'white') + ' wins by checkmate.';
+            }
+            else if (game.in_draw()) {
+                status = 'Game over, drawn position';
+            }
+            else {
+                status = (game.turn() === 'w' ? 'White' : 'Black') + ' to move';
+                
+                if (game.in_check()) {
+                    status += ', ' + (game.turn() === 'w' ? 'White' : 'Black') + ' is in check';
+                }
+            }
+            
+            $status.html(status);
+            highlightCheck();
+        }
+
+        // Function to update game info
+        function updateGameInfo() {
+            $fen.text(game.fen());
+            $pgn.text(game.pgn());
+            
+            // Update move history
+            var history = game.history({ verbose: true });
+            var html = '';
+            var moveNumber = 1;
+            
+            for (var i = 0; i < history.length; i += 2) {
+                html += '<div class="move-number">' + moveNumber + '.</div>';
+                html += '<div>' + history[i].san;
+                if (i + 1 < history.length) {
+                    html += ' ' + history[i + 1].san;
+                }
+                html += '</div>';
+                moveNumber++;
+            }
+            
+            $moveHistory.html(html);
+            $moveHistory.scrollTop($moveHistory[0].scrollHeight);
+        }
+
+        // Function to show promotion modal
+        function showPromotionModal(source, target) {
+            pendingMove = { from: source, to: target };
+            $promotionModal.show();
+            $modalBackdrop.show();
+        }
+
+        // Function to hide promotion modal
+        function hidePromotionModal() {
+            $promotionModal.hide();
+            $modalBackdrop.hide();
+            pendingMove = null;
+        }
+
+        // Handle promotion piece selection
+        $('.promotion-piece').on('click', function() {
+            var piece = $(this).data('piece');
+            if (pendingMove) {
+                pendingMove.promotion = piece;
+                var move = game.move(pendingMove);
+                if (move) {
+                    lastMove = move;
+                    board.position(game.fen());
+                    highlightLastMove();
+                    updateStatus();
+                    updateGameInfo();
+                    window.setTimeout(makeRandomMove, 250);
+                }
+            }
+            hidePromotionModal();
+        });
+
+        // Close modal when clicking backdrop
+        $modalBackdrop.on('click', hidePromotionModal);
+
+        // Reset game
+        $resetButton.on('click', function() {
+            game = new Chess();
+            board.position('start');
+            lastMove = null;
+            highlightLastMove();
+            updateStatus();
+            updateGameInfo();
+        });
+
+        // Initialize the chessboard
+        var board = Chessboard('board', {
+            draggable: true,
+            position: 'start',
+            moveSpeed: 'slow',
+            snapbackSpeed: 500,
+            snapSpeed: 100,
+            trashSpeed: 100,
+            dropOffBoard: 'snapback',
+            pieceTheme: 'https://lichess1.org/assets/piece/cburnett/{piece}.svg',
+            onDragStart: function(source, piece) {
+                if (game.game_over() || 
+                    (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                    (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+                    return false;
+                }
+            },
+            onDrop: function(source, target) {
+                var piece = game.get(source);
+                if (piece && piece.type === 'p' && 
+                    ((piece.color === 'w' && target[1] === '8') || 
+                     (piece.color === 'b' && target[1] === '1'))) {
+                    showPromotionModal(source, target);
+                    return 'snapback';
+                }
+
+                var move = game.move({
+                    from: source,
+                    to: target
+                });
+
+                if (move === null) return 'snapback';
+
+                lastMove = move;
+                highlightLastMove();
+                window.setTimeout(makeRandomMove, 250);
+            },
+            onSnapEnd: function() {
+                board.position(game.fen());
+                updateStatus();
+                updateGameInfo();
+            }
+        });
+
+        // Function to make a random legal move for black
+        function makeRandomMove() {
+            var moves = game.moves();
+            if (moves.length === 0) return;
+            var move = moves[Math.floor(Math.random() * moves.length)];
+            lastMove = game.move(move);
+            board.position(game.fen());
+            highlightLastMove();
+            updateStatus();
+            updateGameInfo();
+        }
+
+        // Initial updates
+        updateStatus();
+        updateGameInfo();
+        
+        // Show first info section by default
+        $('#moveHistory').addClass('active');
+    </script>
+</body>
+</html>
