@@ -605,6 +605,39 @@
             font-size: 0.85rem;
             min-height: 20px;
         }
+
+        .engine-eval {
+            background: var(--bg-secondary);
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .engine-eval h4 {
+            margin: 0 0 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .engine-eval-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .engine-eval-line {
+            display: flex;
+            gap: 8px;
+        }
+
+        .engine-eval-label {
+            color: var(--text-muted);
+            min-width: 100px;
+        }
     </style>
 </head>
 <body>
@@ -666,6 +699,23 @@
                         <i class="fas fa-download"></i>
                         <span>Export</span>
                     </button>
+                </div>
+                <div class="eval-bar">
+                    <div class="eval-fill"></div>
+                    <div class="eval-value"></div>
+                </div>
+                <div class="engine-eval">
+                    <h4>Engine Evaluation</h4>
+                    <div class="engine-eval-content" id="engineEval">
+                        <div class="engine-eval-line">
+                            <span class="engine-eval-label">Best move:</span>
+                            <span class="engine-eval-value">-</span>
+                        </div>
+                        <div class="engine-eval-line">
+                            <span class="engine-eval-label">Evaluation:</span>
+                            <span class="engine-eval-value">-</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="eval-bar">
@@ -1179,6 +1229,7 @@
         // Function to display results
         function displayResults() {
             if (!currentEval || !bestMove) return;
+            const evalContent = document.getElementById('engineEval');
             
             let evalText = '';
             if (currentEval.type === 'cp') {
@@ -1187,34 +1238,10 @@
                 evalText = 'Mate in ' + Math.abs(currentEval.value);
             }
             
-            // Create and show results box
-            const resultsBox = document.createElement('div');
-            resultsBox.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: var(--bg-secondary);
-                padding: 20px;
-                border-radius: var(--border-radius);
-                box-shadow: var(--shadow-lg);
-                border: 1px solid var(--border-color);
-                z-index: 1000;
-                color: var(--text-primary);
-                font-family: inherit;
-            `;
-            
-            resultsBox.innerHTML = `
-                <div style="margin-bottom: 10px;"><strong>Best move:</strong> ${bestMove}</div>
-                <div><strong>Evaluation:</strong> ${evalText}</div>
-            `;
-            
-            document.body.appendChild(resultsBox);
-            
-            // Remove the box after 5 seconds
-            setTimeout(() => {
-                resultsBox.remove();
-            }, 5000);
+            // Update the persistent evaluation panel
+            const evalLines = evalContent.querySelectorAll('.engine-eval-line');
+evalLines[0].querySelector('.engine-eval-value').textContent = bestMove;
+evalLines[1].querySelector('.engine-eval-value').textContent = evalText;
         }
         
         // Start UCI handshake
