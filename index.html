@@ -718,6 +718,23 @@
                     </div>
                 </div>
             </div>
+        </div> <!-- close of #engineEval -->
+
+        <!-- Paste dropdown block here -->
+        <div class="engine-eval" style="margin-top: 12px;">
+            <h4>Analysis Settings</h4>
+            <label for="depthSelect" style="margin-right: 8px;">Engine Depth:</label>
+            <select id="depthSelect">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="12" selected>12</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="23">23</option>
+            </select>
+        </div>
+        
+        
             <div class="eval-bar">
                 <div class="eval-fill"></div>
                 <div class="eval-value"></div>
@@ -1184,6 +1201,13 @@ analyzePosition();
 
         // Initialize Stockfish Web Worker
         const stockfish = new Worker('engine/stockfish.js');
+        let selectedDepth = 12;
+const depthSelect = document.getElementById('depthSelect');
+depthSelect.addEventListener('change', function() {
+    selectedDepth = parseInt(this.value);
+    analyzePosition();
+});
+
         
         // Variables to store evaluation results
         let currentEval = null;
@@ -1229,7 +1253,7 @@ analyzePosition();
         function analyzePosition() {
     const fen = game.fen(); // Get current board state
     stockfish.postMessage('position fen ' + fen);
-    stockfish.postMessage('go depth 12');
+    stockfish.postMessage(`go depth ${selectedDepth}`);
         }
         
         // Function to display results
