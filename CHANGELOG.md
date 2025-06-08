@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2025-06-08]
 
+- Initial stable version with opening detection, eval bar, theme toggle, and PGN/FEN support. Includes test suite for 37 opening scenarios (29 executed, 13 passed). Known issues logged for refinement. (`8341679`)
 - 📚 Add Lichess opening book (TSV → JSON), script to generate openings.json, and prep for PGN-based opening detection (`9658bd8`)
 - ✅ Add PGN and FEN input panels with working logic and toggle behavior; verified Stockfish eval unaffected (`997a902`)
 - Update: Live Stockfish evaluation panel now includes depth tracking and dropdown-controlled engine depth (`5a3f319`)
