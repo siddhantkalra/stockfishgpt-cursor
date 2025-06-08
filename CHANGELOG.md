@@ -6,8 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [2025-06-08]
+
+- Prepare for Stockfish integration: added stockfish.js and .wasm, cleaned up file structure (`52e3a40`)
+
 ## [2025-06-07]
 
+- UI/UX Overhaul: Lichess-inspired styling, correct rank/file labels, eval bar redesign, move interaction partially updated (`7ff7678`)
 - Test commit to verify changelog automation (`9d0674a`)
 - Added README and auto-managed CHANGELOG (`6efb1c4`)
 - Initial commit in correct path (`bcb2ecd`)

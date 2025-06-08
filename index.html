@@ -1125,6 +1125,101 @@
         
         // Show first info section by default
         $('#moveHistory').addClass('active');
+
+        // Initialize Stockfish Web Worker
+        const stockfish = new Worker('engine/stockfish.js');
+        
+        // Variables to store evaluation results
+        let currentEval = null;
+        let bestMove = null;
+        
+        // Handle messages from Stockfish
+        stockfish.onmessage = function(event) {
+            console.log("[Engine]:", event.data);
+            
+            // Handle UCI handshake
+            if (event.data === 'uciok') {
+                console.log("[App]: UCI handshake complete, sending isready");
+                stockfish.postMessage('isready');
+            }
+            
+            // Handle readyok
+            if (event.data === 'readyok') {
+                console.log("[App]: Engine is ready");
+                // Start position analysis after engine is ready
+                analyzePosition();
+            }
+            
+            // Parse evaluation from info lines
+            if (event.data.startsWith('info')) {
+                const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
+                if (scoreMatch) {
+                    const [_, scoreType, scoreValue] = scoreMatch;
+                    currentEval = {
+                        type: scoreType,
+                        value: parseInt(scoreValue)
+                    };
+                }
+            }
+            
+            // Parse best move
+            if (event.data.startsWith('bestmove')) {
+                bestMove = event.data.split(' ')[1];
+                displayResults();
+            }
+        };
+        
+        // Function to analyze the position
+        function analyzePosition() {
+            const fen = 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 4';
+            stockfish.postMessage('position fen ' + fen);
+            stockfish.postMessage('go depth 12');
+        }
+        
+        // Function to display results
+        function displayResults() {
+            if (!currentEval || !bestMove) return;
+            
+            let evalText = '';
+            if (currentEval.type === 'cp') {
+                evalText = (currentEval.value > 0 ? '+' : '') + (currentEval.value / 100).toFixed(2);
+            } else {
+                evalText = 'Mate in ' + Math.abs(currentEval.value);
+            }
+            
+            // Create and show results box
+            const resultsBox = document.createElement('div');
+            resultsBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: var(--bg-secondary);
+                padding: 20px;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow-lg);
+                border: 1px solid var(--border-color);
+                z-index: 1000;
+                color: var(--text-primary);
+                font-family: inherit;
+            `;
+            
+            resultsBox.innerHTML = `
+                <div style="margin-bottom: 10px;"><strong>Best move:</strong> ${bestMove}</div>
+                <div><strong>Evaluation:</strong> ${evalText}</div>
+            `;
+            
+            document.body.appendChild(resultsBox);
+            
+            // Remove the box after 5 seconds
+            setTimeout(() => {
+                resultsBox.remove();
+            }, 5000);
+        }
+        
+        // Start UCI handshake
+        console.log("[App]: Starting UCI handshake");
+        stockfish.postMessage('uci');
     </script>
 </body>
 </html>
