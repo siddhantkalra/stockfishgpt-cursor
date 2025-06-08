@@ -1,0 +1,23 @@
+{
+  "name": "stockfishgpt-cursor",
+  "version": "1.0.0",
+  "description": "**StockfishGPT** is a web-based chess analysis tool that combines the strength of the Stockfish engine with GPT-style commentary and a modern, Lichess-inspired user interface.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/siddhantkalra/stockfishgpt-cursor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/siddhantkalra/stockfishgpt-cursor/issues"
+  },
+  "homepage": "https://github.com/siddhantkalra/stockfishgpt-cursor#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.30"
+  }
+}

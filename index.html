@@ -774,6 +774,9 @@
                             <span class="engine-eval-label">Evaluation:</span>
                             <span class="engine-eval-value">-</span>
                         </div>
+                        <div id="openingInfo" style="margin-top: 8px; font-size: 14px;">
+                            Opening: —
+                          </div>                          
                     </div>
                 </div>
                 <div class="nav-controls">
@@ -853,6 +856,15 @@
     </div>
 
     <script>
+        let openingBook = [];
+    
+        // Load the full opening book from JSON
+        fetch('data/openings.json')
+          .then(res => res.json())
+          .then(data => {
+            openingBook = data;
+            console.log("✅ Opening book loaded:", openingBook.length, "entries");
+          });
         // Initialize chess game
         var game = new Chess();
         var $board = $('#board');
@@ -870,6 +882,42 @@
         var $themeToggle = $('#themeToggle');
         var lastMove = null;
         var boardFlipped = false;
+
+        function stripMoveNumbers(san) {
+  return san.replace(/\d+\.\s*/g, '').trim().toLowerCase();
+}
+
+function detectOpening() {
+  if (!openingBook.length || !game) {
+    console.warn("⚠️ Opening book not ready or game missing");
+    return;
+  }
+
+  const moveHistory = game.history().join(' ').toLowerCase();
+  const normalizedHistory = stripMoveNumbers(moveHistory);
+
+  let match = null;
+  let longestMatch = 0;
+
+  for (let entry of openingBook) {
+    const bookMoves = stripMoveNumbers(entry.moves);
+    if (normalizedHistory.startsWith(bookMoves) && bookMoves.length > longestMatch) {
+      match = entry;
+      longestMatch = bookMoves.length;
+      console.log("✅ Matched Opening:", match.name, `(${match.eco})`);
+    }
+  }
+
+  const display = document.getElementById('openingInfo');
+  if (display) {
+    display.textContent = match
+      ? `Opening: ${match.name} (${match.eco})`
+      : 'Opening: —';
+  } else {
+    console.warn("⚠️ #openingInfo element not found in DOM");
+  }
+}
+
         
         // Theme management
         function initTheme() {
@@ -1085,6 +1133,7 @@
                     updateMoveNotation();
                     playMoveSound(move);
                     analyzePosition();
+                    detectOpening();
                     window.setTimeout(makeRandomMove, 250);
                 }
             }
@@ -1103,6 +1152,7 @@
             updateStatus();
             updateGameInfo();
             updateMoveNotation();
+            detectOpening();
         });
 
         // Flip board
@@ -1124,6 +1174,7 @@
                 updateStatus();
                 updateGameInfo();
                 updateMoveNotation();
+                detectOpening();
             }
         });
 
@@ -1211,6 +1262,7 @@
             updateMoveNotation();
             playMoveSound(lastMove);
             analyzePosition();
+            detectOpening();
         }
 
         // Add click-to-move functionality
@@ -1231,6 +1283,7 @@
                     updateMoveNotation();
                     playMoveSound(move);
                     analyzePosition();
+                    detectOpening();
                     window.setTimeout(makeRandomMove, 250);
                 }
                 
@@ -1355,6 +1408,7 @@
                 currentMoveIndex = game.history().length - 1;
                 updateGameInfo();
                 analyzePosition();
+                detectOpening();
             } catch (e) {
                 console.error('Invalid PGN:', e);
                 alert('Invalid PGN format');
@@ -1372,6 +1426,7 @@
                 currentMoveIndex = game.history().length - 1;
                 updateGameInfo();
                 analyzePosition();
+                detectOpening();
             } catch (e) {
                 console.error('Invalid FEN:', e);
                 alert('Invalid FEN format');
@@ -1394,6 +1449,7 @@
             updateGameInfo();
             analyzePosition();
             updateNavigationButtons();
+            detectOpening();
         }
 
         function updateNavigationButtons() {
