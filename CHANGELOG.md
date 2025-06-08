@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2025-06-08]
 
+- Update: Live Stockfish evaluation panel now includes depth tracking and dropdown-controlled engine depth (`5a3f319`)
 - Add: Depth info now shown in Engine Evaluation panel (live parsed from Stockfish output) (`c889de9`)
 - feat(eval): add persistent engine evaluation panel with dynamic update on move (`e073787`)
 - persistent best move and eval panel based on hardcoded FEN (`8ef83ad`)
