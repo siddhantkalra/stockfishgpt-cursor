@@ -1209,45 +1209,48 @@ depthSelect.addEventListener('change', function() {
 });
 
         
-        // Variables to store evaluation results
-        let currentEval = null;
-        let bestMove = null;
-        
-        // Handle messages from Stockfish
-        stockfish.onmessage = function(event) {
-            console.log("[Engine]:", event.data);
-            
-            // Handle UCI handshake
-            if (event.data === 'uciok') {
-                console.log("[App]: UCI handshake complete, sending isready");
-                stockfish.postMessage('isready');
-            }
-            
-            // Handle readyok
-            if (event.data === 'readyok') {
-                console.log("[App]: Engine is ready");
-                // Start position analysis after engine is ready
-                analyzePosition();
-            }
-            
-            // Parse evaluation from info lines
-            if (event.data.startsWith('info')) {
-                const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
-                if (scoreMatch) {
-                    const [_, scoreType, scoreValue] = scoreMatch;
-                    currentEval = {
-                        type: scoreType,
-                        value: parseInt(scoreValue)
-                    };
-                }
-            }
-            
-            // Parse best move
-            if (event.data.startsWith('bestmove')) {
-                bestMove = event.data.split(' ')[1];
-                displayResults();
-            }
-        };
+ // Variables to store evaluation results
+let currentEval = null;
+let bestMove = null;
+let currentDepth = null;  // ✅ Add this
+
+// Handle messages from Stockfish
+stockfish.onmessage = function(event) {
+    console.log("[Engine]:", event.data);
+
+    if (event.data === 'uciok') {
+        console.log("[App]: UCI handshake complete, sending isready");
+        stockfish.postMessage('isready');
+    }
+
+    if (event.data === 'readyok') {
+        console.log("[App]: Engine is ready");
+        analyzePosition();
+    }
+
+    // ✅ Parse evaluation and depth
+    if (event.data.startsWith('info')) {
+        const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
+        if (scoreMatch) {
+            const [_, scoreType, scoreValue] = scoreMatch;
+            currentEval = {
+                type: scoreType,
+                value: parseInt(scoreValue)
+            };
+        }
+
+        const depthMatch = event.data.match(/depth (\d+)/);
+        if (depthMatch) {
+            currentDepth = parseInt(depthMatch[1]);
+        }
+    }
+
+    // ✅ Get best move and display everything
+    if (event.data.startsWith('bestmove')) {
+        bestMove = event.data.split(' ')[1];
+        displayResults();
+    }
+};
         
         // Function to analyze the position
         function analyzePosition() {
@@ -1258,21 +1261,35 @@ depthSelect.addEventListener('change', function() {
         
         // Function to display results
         function displayResults() {
-            if (!currentEval || !bestMove) return;
-            const evalContent = document.getElementById('engineEval');
-            
-            let evalText = '';
-            if (currentEval.type === 'cp') {
-                evalText = (currentEval.value > 0 ? '+' : '') + (currentEval.value / 100).toFixed(2);
-            } else {
-                evalText = 'Mate in ' + Math.abs(currentEval.value);
-            }
-            
-            // Update the persistent evaluation panel
-            const evalLines = evalContent.querySelectorAll('.engine-eval-line');
-evalLines[0].querySelector('.engine-eval-value').textContent = bestMove;
-evalLines[1].querySelector('.engine-eval-value').textContent = evalText;
-        }
+    if (!currentEval || !bestMove) return;
+    const evalContent = document.getElementById('engineEval');
+
+    let evalText = '';
+    if (currentEval.type === 'cp') {
+        evalText = (currentEval.value > 0 ? '+' : '') + (currentEval.value / 100).toFixed(2);
+    } else {
+        evalText = 'Mate in ' + Math.abs(currentEval.value);
+    }
+
+    const evalLines = evalContent.querySelectorAll('.engine-eval-line');
+
+    // Best move
+    evalLines[0].querySelector('.engine-eval-value').textContent = bestMove;
+
+    // Evaluation
+    evalLines[1].querySelector('.engine-eval-value').textContent = evalText;
+
+    // Depth (add third line if not present)
+    if (!evalLines[2]) {
+        const newLine = document.createElement('div');
+        newLine.className = 'engine-eval-line';
+        newLine.innerHTML = `<span class="engine-eval-label">Depth:</span><span class="engine-eval-value">-</span>`;
+        evalContent.appendChild(newLine);
+    }
+
+    evalContent.querySelectorAll('.engine-eval-line')[2].querySelector('.engine-eval-value').textContent =
+        currentDepth !== null ? currentDepth : '-';
+}
         
         // Start UCI handshake
         console.log("[App]: Starting UCI handshake");
