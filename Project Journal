@@ -1,0 +1,121 @@
+📘 Project Brief: StockfishGPT
+
+Project Name: StockfishGPT
+Maintainer: Siddhant KalraGoal: To build a web-based chess analysis platform that merges Stockfish’s real-time evaluation with GPT-style human commentary and a modern UI/UX experience.
+
+🎯 Vision
+
+To create an interactive and visually compelling tool that:
+
+Analyzes chess positions live via Stockfish
+
+Displays evaluations, best moves, and deeper insights
+
+Offers clear, human-readable commentary (via GPT)
+
+Supports input via FEN, PGN, and over-the-board play
+
+Eventually becomes a lightweight alternative to Chess.com or Lichess game review features with built-in coaching
+
+✅ Completed Milestones (as of June 8, 2025)
+
+Phase 1: Core Evaluation Engine + UI
+
+✅ Dark/light mode with VHS-inspired color theme
+
+✅ Board layout with eval bar and info panels
+
+✅ Click-to-move and drag-and-drop interaction
+
+✅ Sound effects for move/capture/check
+
+✅ Persistent eval panel below board (best move + eval + depth)
+
+✅ Dynamic dropdown for engine depth selection
+
+✅ Evaluation updates in real time as moves are made
+
+✅ Git commits tracked at each step with automated changelog
+
+🛠️ Current Features
+
+Frontend:
+
+Dynamic chessboard with notation and move history
+
+Eval bar (currently placeholder; improvements planned)
+
+Persistent eval panel
+
+Dropdown to select Stockfish depth
+
+Theme toggle (dark/light)
+
+Sound effects for moves
+
+Backend (Engine):
+
+Stockfish integrated via Web Worker
+
+Sends position fen and go depth N
+
+Parses best move, centipawn/mate scores
+
+Displays latest eval and move info live
+
+🐛 Known Issues / Technical Gaps
+
+Eval values are sometimes significantly different from Chess.com at same depth (e.g., -7.2 vs -5.3 at depth 23)
+
+No support yet for multipv (showing more than 1 line)
+
+No display of full engine output metadata (e.g., seldepth, nps, nodes)
+
+Eval bar is static — does not dynamically resize
+
+Theme selector doesn’t affect all visual components yet
+
+📓 Log Entry: June 8, 2025
+
+Reverted to stable Git commit (b05b479) after bloated dialog issue
+
+Replaced temporary eval dialog with persistent UI panel
+
+Successfully wired Stockfish best move + eval to display live
+
+Added depth selection dropdown, wired to re-trigger analysis
+
+Verified app behavior vs Chess.com (noted delta in eval values)
+
+Prepared future enhancement plans for:
+
+Multipv line support
+
+Displaying Stockfish version in UI
+
+Enhanced eval bar with height logic
+
+Git changelog auto-committed after each major update
+
+🗓️ Next Planned Tasks (June 9, 2025 and beyond)
+
+
+
+🔄 Git Strategy
+
+Each meaningful update committed with clear changelog messages
+
+Commits paired with project brief log updates at end of work sessions
+
+📁 File Structure Overview
+
+index.html: Core application UI + JS
+
+engine/stockfish.js: Web Worker Stockfish binary
+
+sounds/: Move, capture, check audio
+
+[To be added] utils/, components/, pgn/, api/
+
+This document is auto-updated in ChatHPT as development continues. At the end of each working session, a new journal entry will be appended summarizing progress, blockers, and new ideas.
+
