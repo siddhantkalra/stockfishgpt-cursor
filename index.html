@@ -1000,6 +1000,7 @@
                     updateGameInfo();
                     updateMoveNotation();
                     playMoveSound(move);
+                    analyzePosition();
                     window.setTimeout(makeRandomMove, 250);
                 }
             }
@@ -1100,6 +1101,9 @@
                 highlightLastMove();
                 updateMoveNotation();
                 playMoveSound(move);
+
+                // 🔥 Add this line
+analyzePosition();
                 
                 // Make black's move after a short delay
                 window.setTimeout(makeRandomMove, 250);
@@ -1122,6 +1126,7 @@
             updateGameInfo();
             updateMoveNotation();
             playMoveSound(lastMove);
+            analyzePosition();
         }
 
         // Add click-to-move functionality
@@ -1141,6 +1146,7 @@
                     highlightLastMove();
                     updateMoveNotation();
                     playMoveSound(move);
+                    analyzePosition();
                     window.setTimeout(makeRandomMove, 250);
                 }
                 
@@ -1221,9 +1227,9 @@
         
         // Function to analyze the position
         function analyzePosition() {
-            const fen = 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 4';
-            stockfish.postMessage('position fen ' + fen);
-            stockfish.postMessage('go depth 12');
+    const fen = game.fen(); // Get current board state
+    stockfish.postMessage('position fen ' + fen);
+    stockfish.postMessage('go depth 12');
         }
         
         // Function to display results

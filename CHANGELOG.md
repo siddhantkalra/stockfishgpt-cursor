@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ## [2025-06-08]
 
+- persistent best move and eval panel based on hardcoded FEN (`8ef83ad`)
+- Stockfish integrated: FEN sent, eval + best move parsed and displayed in dialog (`b05b479`)
 - Prepare for Stockfish integration: added stockfish.js and .wasm, cleaned up file structure (`52e3a40`)
 
 ## [2025-06-07]
