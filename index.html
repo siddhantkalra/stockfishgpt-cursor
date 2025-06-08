@@ -616,27 +616,86 @@
             font-size: 0.9rem;
         }
 
-        .engine-eval h4 {
-            margin: 0 0 8px 0;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 500;
+        /* Add styles for new UI elements */
+        .pgn-import-panel {
+            background: var(--bg-secondary);
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
         }
 
-        .engine-eval-content {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .pgn-import-panel textarea {
+            width: 100%;
+            min-height: 80px;
+            margin: 8px 0;
+            padding: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
         }
 
-        .engine-eval-line {
+        .fen-input {
             display: flex;
             gap: 8px;
+            margin-top: 12px;
         }
 
-        .engine-eval-label {
-            color: var(--text-muted);
-            min-width: 100px;
+        .fen-input input {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        .nav-button {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .nav-button:hover {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .move-list {
+            cursor: pointer;
+        }
+
+        .move-list .move:hover {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .move-list .move.active {
+            background: var(--accent-gradient);
+            color: white;
         }
     </style>
 </head>
@@ -717,31 +776,39 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div> <!-- close of #engineEval -->
-
-        <!-- Paste dropdown block here -->
-        <div class="engine-eval" style="margin-top: 12px;">
-            <h4>Analysis Settings</h4>
-            <label for="depthSelect" style="margin-right: 8px;">Engine Depth:</label>
-            <select id="depthSelect">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="12" selected>12</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="23">23</option>
-            </select>
-        </div>
-        
-        
-            <div class="eval-bar">
-                <div class="eval-fill"></div>
-                <div class="eval-value"></div>
+                <div class="nav-controls">
+                    <button class="nav-button" id="firstMove" title="First Move">|<</button>
+                    <button class="nav-button" id="prevMove" title="Previous Move"><</button>
+                    <button class="nav-button" id="nextMove" title="Next Move">></button>
+                    <button class="nav-button" id="lastMove" title="Last Move">>|</button>
+                </div>
             </div>
         </div>
         
         <div class="game-info">
+            <div class="info-section">
+                <div class="info-header">
+                  <h3><i class="fas fa-file-alt"></i> PGN Import</h3>
+                </div>
+                <div class="info-content" id="pgnPanel">
+                  <div class="pgn-import-panel">
+                    <textarea id="pgnInput" placeholder="Paste PGN here..."></textarea>
+                    <button class="control-button" id="loadPGN">Load Game</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-header">
+                  <h3><i class="fas fa-code"></i> FEN Input</h3>
+                </div>
+                <div class="info-content" id="fenPanel">
+                  <div class="fen-input">
+                    <input type="text" id="fenInput" placeholder="Paste FEN here...">
+                    <button class="control-button" id="loadFEN">Go</button>
+                </div>
+              </div>
+            </div>
             <div class="info-section">
                 <div class="info-header" onclick="toggleSection('moveHistory')">
                     <h3><i class="fas fa-history"></i> Move History</h3>
@@ -1120,7 +1187,7 @@
                 playMoveSound(move);
 
                 // 🔥 Add this line
-analyzePosition();
+                analyzePosition();
                 
                 // Make black's move after a short delay
                 window.setTimeout(makeRandomMove, 250);
@@ -1201,99 +1268,210 @@ analyzePosition();
 
         // Initialize Stockfish Web Worker
         const stockfish = new Worker('engine/stockfish.js');
-        let selectedDepth = 12;
-const depthSelect = document.getElementById('depthSelect');
-depthSelect.addEventListener('change', function() {
-    selectedDepth = parseInt(this.value);
-    analyzePosition();
-});
+        let selectedDepth = 23; // Set default depth to 23
+        let currentEval = null;
+        let bestMove = null;
+        let currentDepth = null;
+        let currentMoveIndex = -1;
 
-        
- // Variables to store evaluation results
-let currentEval = null;
-let bestMove = null;
-let currentDepth = null;  // ✅ Add this
+        // Handle messages from Stockfish
+        stockfish.onmessage = function(event) {
+            console.log("[Engine]:", event.data);
+            
+            if (event.data === 'uciok') {
+                console.log("[App]: UCI handshake complete, sending isready");
+                stockfish.postMessage('isready');
+            }
+            else if (event.data === 'readyok') {
+                analyzePosition();
+            }
+            else if (event.data.startsWith('info')) {
+                // Parse evaluation
+                const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
+                if (scoreMatch) {
+                    const [_, type, value] = scoreMatch;
+                    currentEval = { type, value: parseInt(value) };
+                }
 
-// Handle messages from Stockfish
-stockfish.onmessage = function(event) {
-    console.log("[Engine]:", event.data);
+                // Parse depth
+                const depthMatch = event.data.match(/depth (\d+)/);
+                if (depthMatch) {
+                    currentDepth = parseInt(depthMatch[1]);
+                }
 
-    if (event.data === 'uciok') {
-        console.log("[App]: UCI handshake complete, sending isready");
-        stockfish.postMessage('isready');
-    }
+                // Update evaluation display
+                updateEvalDisplay();
+            }
+            else if (event.data.startsWith('bestmove')) {
+                bestMove = event.data.split(' ')[1];
+                updateEvalDisplay();
+            }
+        };
 
-    if (event.data === 'readyok') {
-        console.log("[App]: Engine is ready");
-        analyzePosition();
-    }
-
-    // ✅ Parse evaluation and depth
-    if (event.data.startsWith('info')) {
-        const scoreMatch = event.data.match(/score (cp|mate) (-?\d+)/);
-        if (scoreMatch) {
-            const [_, scoreType, scoreValue] = scoreMatch;
-            currentEval = {
-                type: scoreType,
-                value: parseInt(scoreValue)
-            };
-        }
-
-        const depthMatch = event.data.match(/depth (\d+)/);
-        if (depthMatch) {
-            currentDepth = parseInt(depthMatch[1]);
-        }
-    }
-
-    // ✅ Get best move and display everything
-    if (event.data.startsWith('bestmove')) {
-        bestMove = event.data.split(' ')[1];
-        displayResults();
-    }
-};
-        
-        // Function to analyze the position
+        // Function to analyze current position
         function analyzePosition() {
-    const fen = game.fen(); // Get current board state
-    stockfish.postMessage('position fen ' + fen);
-    stockfish.postMessage(`go depth ${selectedDepth}`);
+            const fen = game.fen();
+            stockfish.postMessage('position fen ' + fen);
+            stockfish.postMessage(`go depth ${selectedDepth}`);
         }
-        
-        // Function to display results
-        function displayResults() {
-    if (!currentEval || !bestMove) return;
-    const evalContent = document.getElementById('engineEval');
 
-    let evalText = '';
-    if (currentEval.type === 'cp') {
-        evalText = (currentEval.value > 0 ? '+' : '') + (currentEval.value / 100).toFixed(2);
-    } else {
-        evalText = 'Mate in ' + Math.abs(currentEval.value);
-    }
+        // Function to update evaluation display
+        function updateEvalDisplay() {
+            if (!currentEval || !bestMove) return;
+            
+            const evalContent = document.getElementById('engineEval');
+            const evalLines = evalContent.querySelectorAll('.engine-eval-line');
 
-    const evalLines = evalContent.querySelectorAll('.engine-eval-line');
+            // Best move
+            evalLines[0].querySelector('.engine-eval-value').textContent = bestMove;
 
-    // Best move
-    evalLines[0].querySelector('.engine-eval-value').textContent = bestMove;
+            // Evaluation
+            let evalText = '';
+            if (currentEval.type === 'cp') {
+                evalText = (currentEval.value > 0 ? '+' : '') + (currentEval.value / 100).toFixed(2);
+            } else {
+                evalText = 'Mate in ' + Math.abs(currentEval.value);
+            }
+            evalLines[1].querySelector('.engine-eval-value').textContent = evalText;
 
-    // Evaluation
-    evalLines[1].querySelector('.engine-eval-value').textContent = evalText;
+            // Depth
+            if (!evalLines[2]) {
+                const newLine = document.createElement('div');
+                newLine.className = 'engine-eval-line';
+                newLine.innerHTML = `<span class="engine-eval-label">Depth:</span><span class="engine-eval-value">-</span>`;
+                evalContent.appendChild(newLine);
+            }
+            evalLines[2].querySelector('.engine-eval-value').textContent = currentDepth !== null ? currentDepth : '-';
+        }
 
-    // Depth (add third line if not present)
-    if (!evalLines[2]) {
-        const newLine = document.createElement('div');
-        newLine.className = 'engine-eval-line';
-        newLine.innerHTML = `<span class="engine-eval-label">Depth:</span><span class="engine-eval-value">-</span>`;
-        evalContent.appendChild(newLine);
-    }
+        // PGN Import functionality
+        document.getElementById('loadPGN').onclick = function() {
+            const pgnText = document.getElementById('pgnInput').value.trim();
+            if (!pgnText) return;
 
-    evalContent.querySelectorAll('.engine-eval-line')[2].querySelector('.engine-eval-value').textContent =
-        currentDepth !== null ? currentDepth : '-';
-}
-        
+            try {
+                game.load_pgn(pgnText);
+                board.position(game.fen());
+                currentMoveIndex = game.history().length - 1;
+                updateGameInfo();
+                analyzePosition();
+            } catch (e) {
+                console.error('Invalid PGN:', e);
+                alert('Invalid PGN format');
+            }
+        };
+
+        // FEN Input functionality
+        document.getElementById('loadFEN').onclick = function() {
+            const fenText = document.getElementById('fenInput').value.trim();
+            if (!fenText) return;
+
+            try {
+                game.load(fenText);
+                board.position(fenText);
+                currentMoveIndex = game.history().length - 1;
+                updateGameInfo();
+                analyzePosition();
+            } catch (e) {
+                console.error('Invalid FEN:', e);
+                alert('Invalid FEN format');
+            }
+        };
+
+        // Navigation functions
+        function goToMove(index) {
+            if (index < -1 || index >= game.history().length) return;
+            
+            currentMoveIndex = index;
+            game = new Chess();
+            
+            if (index >= 0) {
+                const moves = game.history().slice(0, index + 1);
+                moves.forEach(move => game.move(move));
+            }
+            
+            board.position(game.fen());
+            updateGameInfo();
+            analyzePosition();
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('firstMove').disabled = currentMoveIndex <= -1;
+            document.getElementById('prevMove').disabled = currentMoveIndex <= -1;
+            document.getElementById('nextMove').disabled = currentMoveIndex >= game.history().length - 1;
+            document.getElementById('lastMove').disabled = currentMoveIndex >= game.history().length - 1;
+        }
+
+        // Navigation event listeners
+        document.getElementById('firstMove').onclick = () => goToMove(-1);
+        document.getElementById('prevMove').onclick = () => goToMove(currentMoveIndex - 1);
+        document.getElementById('nextMove').onclick = () => goToMove(currentMoveIndex + 1);
+        document.getElementById('lastMove').onclick = () => goToMove(game.history().length - 1);
+
+        // Make move list interactive
+        function updateMoveList() {
+            const moveList = document.getElementById('moveHistory');
+            const moves = game.history({ verbose: true });
+            let html = '<table class="move-history">';
+            let moveNumber = 1;
+            
+            for (let i = 0; i < moves.length; i += 2) {
+                html += '<tr>';
+                html += `<td class="move-number">${moveNumber}.</td>`;
+                html += `<td class="move-white" data-move="${i}" onclick="goToMove(${i})">${moves[i].san}</td>`;
+                if (i + 1 < moves.length) {
+                    html += `<td class="move-black" data-move="${i + 1}" onclick="goToMove(${i + 1})">${moves[i + 1].san}</td>`;
+                } else {
+                    html += '<td class="move-black"></td>';
+                }
+                html += '</tr>';
+                moveNumber++;
+            }
+            
+            html += '</table>';
+            moveList.innerHTML = html;
+
+            // Highlight current move
+            const currentMove = moveList.querySelector(`[data-move="${currentMoveIndex}"]`);
+            if (currentMove) {
+                moveList.querySelectorAll('.move-white, .move-black').forEach(el => el.classList.remove('active'));
+                currentMove.classList.add('active');
+            }
+        }
+
+        // Override existing updateGameInfo to include move list update
+        const originalUpdateGameInfo = updateGameInfo;
+        updateGameInfo = function() {
+            originalUpdateGameInfo();
+            updateMoveList();
+            updateNavigationButtons();
+        };
+
+        // Modify existing move handlers to trigger analysis
+        const originalOnDrop = board.onDrop;
+        board.onDrop = function(source, target) {
+            const result = originalOnDrop(source, target);
+            if (result !== 'snapback') {
+                analyzePosition();
+            }
+            return result;
+        };
+
         // Start UCI handshake
         console.log("[App]: Starting UCI handshake");
         stockfish.postMessage('uci');
+        // [your existing JS functions above]
+
+  // ✅ Insert this here!
+  document.querySelectorAll('.info-header').forEach(header => {
+    header.addEventListener('click', function () {
+      const content = header.nextElementSibling;
+      if (content && content.classList.contains('info-content')) {
+        content.classList.toggle('active');
+      }
+    });
+  });
     </script>
 </body>
 </html>
