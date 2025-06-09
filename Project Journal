@@ -119,3 +119,109 @@ sounds/: Move, capture, check audio
 
 This document is auto-updated in ChatHPT as development continues. At the end of each working session, a new journal entry will be appended summarizing progress, blockers, and new ideas.
 
+June 8-9, 2025
+
+📓 Log Entry: June 9, 2025
+
+Major progress today: converted board to full analysis mode, added navigation and board control features, and finalized cleanup from the modularization rollback. Previously integrated a full Lichess-based opening book and tested 50+ opening scenarios for robust detection.
+
+✅ Work Completed
+♟️ Analysis Mode + Interaction
+Enabled full analysis mode: board now supports two-color play
+
+Removed automatic black replies
+
+Fixed opening detection logic during manual play and FEN/PGN input
+
+Cleaned up game status messaging for clarity
+
+🧭 Board Control Features
+Added Clear Board button (empties board)
+
+Added Start Position button (resets to standard starting FEN)
+
+Added Move Navigation Arrows (|<, <, >, >|)
+
+Created goToMove() logic to handle indexed move jumps
+
+Known bug: re-creates Chess() instance and breaks continuity
+
+🧰 PGN/FEN Input Panel Improvements
+Made PGN and FEN panels always visible
+
+Removed toggle logic for better UX
+
+Unified and corrected panel header styling
+
+📖 Opening Book Integration
+Converted Lichess opening book TSV → JSON
+
+Created openings.json with 3,500+ labeled ECO entries
+
+Implemented FEN-based opening detection logic
+
+Ran and passed a test suite of 50+ PGN/FEN positions
+
+Verified matches for Ruy Lopez, Queen’s Gambit, English, Sicilian lines
+
+Noted minor deltas in naming vs Lichess/Chess.com (due to subvariation labels)
+
+🛠️ Codebase Reset & Stability
+Reverted to monolithic index.html (commit ad05240) after failed modular split
+
+Issues with modular version:
+
+Broken PGN/FEN loading
+
+Event system misfires
+
+DOM references out of sync
+
+Monolithic structure now considered stable for continued iteration
+
+🐛 Known Issues
+goToMove() resets Chess() context — breaks move continuity
+
+Arrows don’t correctly update the board or highlight current move
+
+Best move is still shown in UCI instead of SAN
+
+Eval bar is static and does not reflect centipawn values
+
+Engine response (Stockfish) is slower than ideal at depth 20+
+
+No full move list interaction or clickable history yet
+
+💡 Ideas and Future Enhancements
+🔜 Short-Term Tasks
+Convert UCI best move to Standard Algebraic Notation (SAN)
+
+Fix navigation logic to retain state + history
+
+Add live, resizable eval bar linked to cp score
+
+Display Top 3 Stockfish lines (SAN + eval + depth)
+
+Sync FEN import with full game history reconstruction
+
+🚀 Long-Term Vision
+PGN upload and full game review with classification
+
+Human-style commentary via GPT (inaccuracy, blunder, strategy)
+
+Report generator like Lichess/Chess.com post-game analysis
+
+Smooth visual eval transitions (eval animation)
+
+Stockfish version display, evaluation metadata (nps, depth, etc.)
+
+Keyboard shortcuts for analysis navigation
+
+🔢 Git Activity Summary (June 9, 2025)
+2a5ad94 – fix: simplify PGN and FEN display panels
+
+0dad6e1 – feat: convert board to analysis mode
+
+5e682ad – feat: add board controls and improve navigation
+(Full detailed changelog with timestamps maintained in Changelog doc)
+

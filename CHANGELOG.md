@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [2025-06-09]
+
+- feat: add board controls and improve navigation (`5e682ad`)
+- feat: convert board to analysis mode (`0dad6e1`)
+- fix: simplify PGN and FEN display panels (`2a5ad94`)
+
 ## [2025-06-08]
 
 - Initial stable version with opening detection, eval bar, theme toggle, and PGN/FEN support. Includes test suite for 37 opening scenarios (29 executed, 13 passed). Known issues logged for refinement. (`8341679`)
