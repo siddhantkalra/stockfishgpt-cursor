@@ -389,12 +389,12 @@
 
         .info-content {
             padding: 12px;
-            max-height: 180px;
-            overflow-y: auto;
             font-size: 0.85rem;
             background: var(--bg-secondary);
-            display: none;
             color: var(--text-secondary);
+            font-family: monospace;
+            word-break: break-all;
+            border-top: 1px solid var(--border-color);
         }
 
         .info-content.active {
@@ -823,21 +823,15 @@
             </div>
             
             <div class="info-section">
-                <div class="info-header" onclick="toggleSection('fen')">
+                <div class="info-header">
                     <h3><i class="fas fa-code"></i> FEN</h3>
-                    <button class="button" onclick="copyToClipboard('fen', event)">
-                        <i class="fas fa-copy"></i>
-                    </button>
                 </div>
                 <div class="info-content" id="fen"></div>
             </div>
             
             <div class="info-section">
-                <div class="info-header" onclick="toggleSection('pgn')">
+                <div class="info-header">
                     <h3><i class="fas fa-file-alt"></i> PGN</h3>
-                    <button class="button" onclick="copyToClipboard('pgn', event)">
-                        <i class="fas fa-copy"></i>
-                    </button>
                 </div>
                 <div class="info-content" id="pgn"></div>
             </div>
