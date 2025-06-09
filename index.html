@@ -758,6 +758,14 @@
                         <i class="fas fa-download"></i>
                         <span>Export</span>
                     </button>
+                    <button class="control-button" id="clearButton" title="Clear Board">
+                        <i class="fas fa-trash"></i>
+                        <span>Clear</span>
+                    </button>
+                    <button class="control-button" id="startButton" title="Start Position">
+                        <i class="fas fa-home"></i>
+                        <span>Start</span>
+                    </button>
                 </div>
                 <div class="eval-bar">
                     <div class="eval-fill"></div>
@@ -1425,13 +1433,14 @@ function detectOpening() {
             if (index < -1 || index >= game.history().length) return;
             
             currentMoveIndex = index;
-            game = new Chess();
+            const tempGame = new Chess();
             
             if (index >= 0) {
                 const moves = game.history().slice(0, index + 1);
-                moves.forEach(move => game.move(move));
+                moves.forEach(move => tempGame.move(move));
             }
             
+            game = tempGame;
             board.position(game.fen());
             updateGameInfo();
             analyzePosition();
@@ -1445,6 +1454,41 @@ function detectOpening() {
             document.getElementById('nextMove').disabled = currentMoveIndex >= game.history().length - 1;
             document.getElementById('lastMove').disabled = currentMoveIndex >= game.history().length - 1;
         }
+
+        // Add Clear Board and Start Position functions
+        function clearBoard() {
+            game = new Chess();
+            board.position('empty');
+            currentMoveIndex = -1;
+            updateGameInfo();
+            updateNavigationButtons();
+            detectOpening();
+        }
+
+        function startPosition() {
+            game = new Chess();
+            board.position('start');
+            currentMoveIndex = -1;
+            updateGameInfo();
+            updateNavigationButtons();
+            detectOpening();
+        }
+
+        // Add buttons to board controls
+        $('.board-controls').append(`
+            <button class="control-button" id="clearButton" title="Clear Board">
+                <i class="fas fa-trash"></i>
+                <span>Clear</span>
+            </button>
+            <button class="control-button" id="startButton" title="Start Position">
+                <i class="fas fa-home"></i>
+                <span>Start</span>
+            </button>
+        `);
+
+        // Add event listeners for new buttons
+        $('#clearButton').on('click', clearBoard);
+        $('#startButton').on('click', startPosition);
 
         // Navigation event listeners
         document.getElementById('firstMove').onclick = () => goToMove(-1);
