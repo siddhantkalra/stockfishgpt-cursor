@@ -869,6 +869,7 @@
           });
         // Initialize chess game
         var game = new Chess();
+        var renderGame = new Chess(); // For history display only
         var $board = $('#board');
         var $status = $('#status');
         var $fen = $('#fen');
@@ -1362,6 +1363,32 @@ function detectOpening() {
             stockfish.postMessage('position fen ' + fen);
             stockfish.postMessage(`go depth ${selectedDepth}`);
         }
+        function analyzePositionFromFEN(fen) {
+    stockfish.postMessage('position fen ' + fen);
+    stockfish.postMessage(`go depth ${selectedDepth}`);
+}
+
+function detectOpeningFromFEN(fen) {
+    const shadow = new Chess();
+    shadow.load(fen);
+
+    const moveHistory = shadow.history().join(' ').toLowerCase();
+    const normalizedHistory = stripMoveNumbers(moveHistory);
+
+    let match = null;
+    let longestMatch = 0;
+
+    for (let entry of openingBook) {
+        const bookMoves = stripMoveNumbers(entry.moves);
+        if (normalizedHistory.startsWith(bookMoves) && bookMoves.length > longestMatch) {
+            match = entry;
+            longestMatch = bookMoves.length;
+        }
+    }
+
+    const display = document.getElementById('openingInfo');
+    display.textContent = match ? `Opening: ${match.name} (${match.eco})` : 'Opening: —';
+}
 
         // Function to update evaluation display
         function updateEvalDisplay() {
@@ -1430,23 +1457,23 @@ function detectOpening() {
 
         // Navigation functions
         function goToMove(index) {
-            if (index < -1 || index >= game.history().length) return;
-            
-            currentMoveIndex = index;
-            const tempGame = new Chess();
-            
-            if (index >= 0) {
-                const moves = game.history().slice(0, index + 1);
-                moves.forEach(move => tempGame.move(move));
-            }
-            
-            game = tempGame;
-            board.position(game.fen());
-            updateGameInfo();
-            analyzePosition();
-            updateNavigationButtons();
-            detectOpening();
-        }
+    if (index < -1 || index >= game.history().length) return;
+
+    currentMoveIndex = index;
+
+    renderGame = new Chess();
+    const moves = game.history().slice(0, index + 1);
+    moves.forEach(m => renderGame.move(m));
+
+    board.position(renderGame.fen());
+
+    updateGameInfo();
+    updateMoveListHighlight();
+    updateNavigationButtons();
+
+    analyzePositionFromFEN(renderGame.fen());
+    detectOpeningFromFEN(renderGame.fen());
+}
 
         function updateNavigationButtons() {
             document.getElementById('firstMove').disabled = currentMoveIndex <= -1;
@@ -1526,6 +1553,17 @@ function detectOpening() {
                 currentMove.classList.add('active');
             }
         }
+        function updateMoveListHighlight() {
+    const moveList = document.getElementById('moveHistory');
+    if (!moveList) return;
+
+    moveList.querySelectorAll('.move-white, .move-black').forEach(el =>
+        el.classList.remove('active')
+    );
+
+    const current = moveList.querySelector(`[data-move="${currentMoveIndex}"]`);
+    if (current) current.classList.add('active');
+}
 
         // Override existing updateGameInfo to include move list update
         const originalUpdateGameInfo = updateGameInfo;
