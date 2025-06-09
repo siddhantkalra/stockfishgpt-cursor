@@ -735,92 +735,86 @@
         </div>
     </nav>
 
-    <div class="container">
-        <div class="board-section">
-            <div class="board-container">
-                <div id="board"></div>
-                <div id="status"></div>
-                <div class="move-notation" id="moveNotation"></div>
-                <div class="board-controls">
-                    <button class="control-button" id="resetButton" title="Reset Game">
-                        <i class="fas fa-redo"></i>
-                        <span>Reset</span>
-                    </button>
-                    <button class="control-button" id="flipButton" title="Flip Board">
-                        <i class="fas fa-sync"></i>
-                        <span>Flip</span>
-                    </button>
-                    <button class="control-button" id="undoButton" title="Undo Move">
-                        <i class="fas fa-undo"></i>
-                        <span>Undo</span>
-                    </button>
-                    <button class="control-button" id="exportButton" title="Export PGN">
-                        <i class="fas fa-download"></i>
-                        <span>Export</span>
-                    </button>
-                    <button class="control-button" id="clearButton" title="Clear Board">
-                        <i class="fas fa-trash"></i>
-                        <span>Clear</span>
-                    </button>
-                    <button class="control-button" id="startButton" title="Start Position">
-                        <i class="fas fa-home"></i>
-                        <span>Start</span>
-                    </button>
-                </div>
-                <div class="eval-bar">
-                    <div class="eval-fill"></div>
-                    <div class="eval-value"></div>
-                </div>
-                <div class="engine-eval">
-                    <h4>Engine Evaluation</h4>
-                    <div class="engine-eval-content" id="engineEval">
-                        <div class="engine-eval-line">
-                            <span class="engine-eval-label">Best move:</span>
-                            <span class="engine-eval-value">-</span>
-                        </div>
-                        <div class="engine-eval-line">
-                            <span class="engine-eval-label">Evaluation:</span>
-                            <span class="engine-eval-value">-</span>
-                        </div>
-                        <div id="openingInfo" style="margin-top: 8px; font-size: 14px;">
-                            Opening: —
-                          </div>                          
+    <div class="container" style="display: flex; flex-direction: row; gap: 24px; max-width: 1200px; margin: 80px auto 30px; padding: 0 24px; align-items: flex-start; min-height: calc(100vh - 110px);">
+        <!-- Left: LLM/Coaching Placeholder -->
+        <aside class="llm-sidebar" style="flex: 0 0 260px; min-width: 220px; max-width: 320px; background: var(--bg-secondary); border-radius: var(--border-radius); border: 1px solid var(--border-color); min-height: 500px; margin-right: 12px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+            <h3 style="margin: 18px 0 8px 0; color: var(--text-primary);"><i class="fas fa-robot"></i> LLM / Coaching</h3>
+            <div style="color: var(--text-muted); font-size: 0.95em; text-align: center; padding: 0 12px;">(Coming soon: AI commentary, coaching, and chat features will appear here.)</div>
+        </aside>
+        <!-- Center: Board and controls only -->
+        <main class="center-main" style="flex: 1 1 480px; min-width: 340px; max-width: 600px; display: flex; flex-direction: column; align-items: center;">
+            <div class="board-section" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <div class="board-container">
+                    <div id="board"></div>
+                    <div id="status"></div>
+                    <div class="move-notation" id="moveNotation"></div>
+                    <div class="board-controls">
+                        <button class="control-button" id="resetButton" title="Reset Game">
+                            <i class="fas fa-redo"></i>
+                            <span>Reset</span>
+                        </button>
+                        <button class="control-button" id="flipButton" title="Flip Board">
+                            <i class="fas fa-sync"></i>
+                            <span>Flip</span>
+                        </button>
+                        <button class="control-button" id="undoButton" title="Undo Move">
+                            <i class="fas fa-undo"></i>
+                            <span>Undo</span>
+                        </button>
+                        <button class="control-button" id="exportButton" title="Export PGN">
+                            <i class="fas fa-download"></i>
+                            <span>Export</span>
+                        </button>
+                        <button class="control-button" id="clearButton" title="Clear Board">
+                            <i class="fas fa-trash"></i>
+                            <span>Clear</span>
+                        </button>
+                        <button class="control-button" id="startButton" title="Start Position">
+                            <i class="fas fa-home"></i>
+                            <span>Start</span>
+                        </button>
+                    </div>
+                    <div class="nav-controls">
+                        <button class="nav-button" id="firstMove" title="First Move">|<</button>
+                        <button class="nav-button" id="prevMove" title="Previous Move"><</button>
+                        <button class="nav-button" id="nextMove" title="Next Move">></button>
+                        <button class="nav-button" id="lastMove" title="Last Move">>|</button>
                     </div>
                 </div>
-                <div class="nav-controls">
-                    <button class="nav-button" id="firstMove" title="First Move">|<</button>
-                    <button class="nav-button" id="prevMove" title="Previous Move"><</button>
-                    <button class="nav-button" id="nextMove" title="Next Move">></button>
-                    <button class="nav-button" id="lastMove" title="Last Move">>|</button>
+            </div>
+            <!-- PGN/FEN panels below the board, full width -->
+            <div class="pgn-fen-panels" style="margin-top: 24px; width: 100%; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                <div class="pgn-fen-panel" style="flex: 1; min-width: 220px; max-width: 350px;">
+                    <h4 style="margin-bottom: 4px;"><i class="fas fa-file-alt"></i> PGN</h4>
+                    <textarea id="pgnUnified" style="width: 100%; min-height: 60px; font-family: monospace; font-size: 0.95em; border-radius: 6px; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); resize: vertical;"></textarea>
+                    <button class="control-button" id="loadPGNUnified" style="margin-top: 6px;">Load PGN</button>
+                </div>
+                <div class="pgn-fen-panel" style="flex: 1; min-width: 220px; max-width: 350px;">
+                    <h4 style="margin-bottom: 4px;"><i class="fas fa-code"></i> FEN</h4>
+                    <textarea id="fenUnified" style="width: 100%; min-height: 40px; font-family: monospace; font-size: 0.95em; border-radius: 6px; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); resize: vertical;"></textarea>
+                    <button class="control-button" id="loadFENUnified" style="margin-top: 6px;">Load FEN</button>
                 </div>
             </div>
-        </div>
-        
-        <div class="game-info">
-            <div class="info-section">
-                <div class="info-header">
-                  <h3><i class="fas fa-file-alt"></i> PGN Import</h3>
+        </main>
+        <!-- Right: Engine, Move History, DB Explorer -->
+        <aside class="right-sidebar" style="flex: 0 0 320px; min-width: 260px; max-width: 360px; background: var(--bg-secondary); border-radius: var(--border-radius); border: 1px solid var(--border-color); min-height: 500px; margin-left: 12px; display: flex; flex-direction: column; align-items: stretch;">
+            <div class="engine-eval" style="margin: 18px 12px 0 12px;">
+                <h4>Engine Evaluation</h4>
+                <div class="engine-eval-content" id="engineEval">
+                    <div class="engine-eval-line">
+                        <span class="engine-eval-label">Best move:</span>
+                        <span class="engine-eval-value">-</span>
+                    </div>
+                    <div class="engine-eval-line">
+                        <span class="engine-eval-label">Evaluation:</span>
+                        <span class="engine-eval-value">-</span>
+                    </div>
+                    <div id="openingInfo" style="margin-top: 8px; font-size: 14px;">
+                        Opening: —
+                    </div>
                 </div>
-                <div class="info-content" id="pgnPanel">
-                  <div class="pgn-import-panel">
-                    <textarea id="pgnInput" placeholder="Paste PGN here..."></textarea>
-                    <button class="control-button" id="loadPGN">Load Game</button>
-                </div>
-              </div>
             </div>
-
-            <div class="info-section">
-                <div class="info-header">
-                  <h3><i class="fas fa-code"></i> FEN Input</h3>
-                </div>
-                <div class="info-content" id="fenPanel">
-                  <div class="fen-input">
-                    <input type="text" id="fenInput" placeholder="Paste FEN here...">
-                    <button class="control-button" id="loadFEN">Go</button>
-                </div>
-              </div>
-            </div>
-            <div class="info-section">
+            <div class="info-section" style="margin: 18px 12px 0 12px;">
                 <div class="info-header" onclick="toggleSection('moveHistory')">
                     <h3><i class="fas fa-history"></i> Move History</h3>
                     <button class="button" onclick="copyToClipboard('moveHistory', event)">
@@ -829,21 +823,13 @@
                 </div>
                 <div class="info-content move-history" id="moveHistory"></div>
             </div>
-            
-            <div class="info-section">
+            <div class="info-section" style="margin: 18px 12px 0 12px;">
                 <div class="info-header">
-                    <h3><i class="fas fa-code"></i> FEN</h3>
+                    <h3><i class="fas fa-database"></i> Lichess DB Explorer</h3>
                 </div>
-                <div class="info-content" id="fen"></div>
+                <div class="info-content" style="color: var(--text-muted); font-size: 0.95em; text-align: center;">(Coming soon: Lichess opening explorer and move stats will appear here.)</div>
             </div>
-            
-            <div class="info-section">
-                <div class="info-header">
-                    <h3><i class="fas fa-file-alt"></i> PGN</h3>
-                </div>
-                <div class="info-content" id="pgn"></div>
-            </div>
-        </div>
+        </aside>
     </div>
 
     <div class="modal-backdrop" id="modalBackdrop"></div>
@@ -885,6 +871,8 @@
         var $themeToggle = $('#themeToggle');
         var lastMove = null;
         var boardFlipped = false;
+        var $pgnUnified = $('#pgnUnified');
+        var $fenUnified = $('#fenUnified');
 
         function stripMoveNumbers(san) {
   return san.replace(/\d+\.\s*/g, '').trim().toLowerCase();
@@ -1156,6 +1144,7 @@ function detectOpening() {
             updateGameInfo();
             updateMoveNotation();
             detectOpening();
+            updatePGNFENPanels();
         });
 
         // Flip board
@@ -1167,9 +1156,9 @@ function detectOpening() {
         // Undo move
         $undoButton.on('click', function() {
             if (game.history().length > 0) {
-                game.undo(); // Undo black's move
+                game.undo();
                 if (game.history().length > 0) {
-                    game.undo(); // Undo white's move
+                    game.undo();
                 }
                 board.position(game.fen());
                 lastMove = game.history({ verbose: true }).pop() || null;
@@ -1178,6 +1167,7 @@ function detectOpening() {
                 updateGameInfo();
                 updateMoveNotation();
                 detectOpening();
+                updatePGNFENPanels();
             }
         });
 
@@ -1424,8 +1414,8 @@ function detectOpeningFromFEN(fen) {
         }
 
         // PGN Import functionality
-        document.getElementById('loadPGN').onclick = function() {
-            const pgnText = document.getElementById('pgnInput').value.trim();
+        document.getElementById('loadPGNUnified').onclick = function() {
+            const pgnText = document.getElementById('pgnUnified').value.trim();
             if (!pgnText) return;
 
             try {
@@ -1435,6 +1425,7 @@ function detectOpeningFromFEN(fen) {
                 updateGameInfo();
                 analyzePosition();
                 detectOpening();
+                updatePGNFENPanels();
             } catch (e) {
                 console.error('Invalid PGN:', e);
                 alert('Invalid PGN format');
@@ -1442,8 +1433,8 @@ function detectOpeningFromFEN(fen) {
         };
 
         // FEN Input functionality
-        document.getElementById('loadFEN').onclick = function() {
-            const fenText = document.getElementById('fenInput').value.trim();
+        document.getElementById('loadFENUnified').onclick = function() {
+            const fenText = document.getElementById('fenUnified').value.trim();
             if (!fenText) return;
 
             try {
@@ -1453,6 +1444,7 @@ function detectOpeningFromFEN(fen) {
                 updateGameInfo();
                 analyzePosition();
                 detectOpening();
+                updatePGNFENPanels();
             } catch (e) {
                 console.error('Invalid FEN:', e);
                 alert('Invalid FEN format');
@@ -1593,28 +1585,85 @@ function detectOpeningFromFEN(fen) {
     if (current) current.classList.add('active');
 }
 
-        // Override existing updateGameInfo to include move list update
+        // Update unified PGN/FEN panels with current game state
+        function updatePGNFENPanels() {
+            $pgnUnified.val(game.pgn());
+            $fenUnified.val(game.fen());
+        }
+
+        // Call this after any move, undo, reset, or board update
+        // Add to the end of updateGameInfo and other relevant places
         const originalUpdateGameInfo = updateGameInfo;
         updateGameInfo = function() {
             originalUpdateGameInfo();
-            updateMoveList();
-            updateNavigationButtons();
+            updatePGNFENPanels();
         };
 
-        // Modify existing move handlers to trigger analysis
-        const originalOnDrop = board.onDrop;
-        board.onDrop = function(source, target) {
-            const result = originalOnDrop(source, target);
-            if (result !== 'snapback') {
-                analyzePosition();
+        // Also update on reset, undo, and after loading PGN/FEN
+        $resetButton.on('click', function() {
+            game = new Chess();
+            board.position('start');
+            lastMove = null;
+            highlightLastMove();
+            updateStatus();
+            updateGameInfo();
+            updateMoveNotation();
+            detectOpening();
+            updatePGNFENPanels();
+        });
+        $undoButton.on('click', function() {
+            if (game.history().length > 0) {
+                game.undo();
+                if (game.history().length > 0) {
+                    game.undo();
+                }
+                board.position(game.fen());
+                lastMove = game.history({ verbose: true }).pop() || null;
+                highlightLastMove();
+                updateStatus();
+                updateGameInfo();
+                updateMoveNotation();
+                detectOpening();
+                updatePGNFENPanels();
             }
-            return result;
+        });
+        // After loading PGN/FEN
+        document.getElementById('loadPGNUnified').onclick = function() {
+            const pgnText = document.getElementById('pgnUnified').value.trim();
+            if (!pgnText) return;
+            try {
+                game.load_pgn(pgnText);
+                board.position(game.fen());
+                currentMoveIndex = game.history().length - 1;
+                updateGameInfo();
+                analyzePosition();
+                detectOpening();
+                updatePGNFENPanels();
+            } catch (e) {
+                console.error('Invalid PGN:', e);
+                alert('Invalid PGN format');
+            }
         };
-
-        // Start UCI handshake
-        console.log("[App]: Starting UCI handshake");
-        stockfish.postMessage('uci');
-        // [your existing JS functions above]
+        document.getElementById('loadFENUnified').onclick = function() {
+            const fenText = document.getElementById('fenUnified').value.trim();
+            if (!fenText) return;
+            try {
+                game.load(fenText);
+                board.position(fenText);
+                currentMoveIndex = game.history().length - 1;
+                updateGameInfo();
+                analyzePosition();
+                detectOpening();
+                updatePGNFENPanels();
+            } catch (e) {
+                console.error('Invalid FEN:', e);
+                alert('Invalid FEN format');
+            }
+        };
+        // Initial sync on page load
+        $(document).ready(function() {
+            updatePGNFENPanels();
+        });
 
   // ✅ Insert this here!
   document.querySelectorAll('.info-header').forEach(header => {
