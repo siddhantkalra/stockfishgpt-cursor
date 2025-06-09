@@ -1239,6 +1239,8 @@ function detectOpening() {
                 detectOpening();
                 updateStatus();
                 updateGameInfo();
+                currentMoveIndex = game.history().length - 1;
+updateNavigationButtons();
             },
             onSnapEnd: function() {
                 board.position(game.fen());
@@ -1273,16 +1275,18 @@ function detectOpening() {
                 });
                 
                 if (move) {
-                    board.position(game.fen());
-                    lastMove = move;
-                    highlightLastMove();
-                    updateMoveNotation();
-                    playMoveSound(move);
-                    analyzePosition();
-                    detectOpening();
-                    window.setTimeout(makeRandomMove, 250);
-                }
-                
+    board.position(game.fen());
+    lastMove = move;
+    highlightLastMove();
+    updateMoveNotation();
+    playMoveSound(move);
+    analyzePosition();
+    detectOpening();
+    window.setTimeout(makeRandomMove, 250);
+
+    currentMoveIndex = game.history().length - 1;
+    updateNavigationButtons();
+}
                 // Clear selection
                 $('.square-55d63').removeClass('square-selected');
                 $('.square-55d63').removeClass('legal-move');
@@ -1522,6 +1526,30 @@ function detectOpeningFromFEN(fen) {
         document.getElementById('prevMove').onclick = () => goToMove(currentMoveIndex - 1);
         document.getElementById('nextMove').onclick = () => goToMove(currentMoveIndex + 1);
         document.getElementById('lastMove').onclick = () => goToMove(game.history().length - 1);
+
+        document.addEventListener('keydown', function (e) {
+    const tag = e.target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    switch (e.key) {
+        case 'ArrowLeft':
+            e.preventDefault();
+            goToMove(currentMoveIndex - 1);
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            goToMove(currentMoveIndex + 1);
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            goToMove(-1);
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            goToMove(game.history().length - 1);
+            break;
+    }
+});
 
         // Make move list interactive
         function updateMoveList() {
