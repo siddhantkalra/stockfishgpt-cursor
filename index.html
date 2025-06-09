@@ -1044,16 +1044,16 @@ function detectOpening() {
             var status = '';
             
             if (game.in_checkmate()) {
-                status = 'Game over, ' + (game.turn() === 'w' ? 'black' : 'white') + ' wins by checkmate.';
+                status = 'Checkmate';
             }
             else if (game.in_draw()) {
-                status = 'Game over, drawn position';
+                status = 'Draw';
             }
             else {
                 status = (game.turn() === 'w' ? 'White' : 'Black') + ' to move';
                 
                 if (game.in_check()) {
-                    status += ', ' + (game.turn() === 'w' ? 'White' : 'Black') + ' is in check';
+                    status += ' (Check)';
                 }
             }
             
@@ -1198,12 +1198,8 @@ function detectOpening() {
             pieceTheme: 'https://lichess1.org/assets/piece/cburnett/{piece}.svg',
             showNotation: true,
             onDragStart: function(source, piece) {
-                if (game.game_over() || 
-                    (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-                    (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-                    return false;
-                }
-                highlightLegalMoves(source);
+                // Allow any piece to be moved
+                return true;
             },
             onDrop: function(source, target) {
                 // Remove legal move highlights
@@ -1230,16 +1226,13 @@ function detectOpening() {
                 highlightLastMove();
                 updateMoveNotation();
                 playMoveSound(move);
-
-                // 🔥 Add this line
                 analyzePosition();
-                
-                // Make black's move after a short delay
-                window.setTimeout(makeRandomMove, 250);
-            },
-            onSnapEnd: function() {
+                detectOpening();
                 updateStatus();
                 updateGameInfo();
+            },
+            onSnapEnd: function() {
+                board.position(game.fen());
             }
         });
 
